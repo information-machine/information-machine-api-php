@@ -64,7 +64,7 @@ class UserPurchasesController {
         APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
             'page'      => $page,
             'per_page'  => $perPage,
-            'full_resp' => $fullResp,
+            'full_resp' => var_export($fullResp, true),
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));
@@ -125,7 +125,7 @@ class UserPurchasesController {
 
         //process optional query parameters
         APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'full_resp'   => $fullResp,
+            'full_resp'   => var_export($fullResp, true),
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));

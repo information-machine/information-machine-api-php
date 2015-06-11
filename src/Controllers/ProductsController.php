@@ -66,7 +66,7 @@ class ProductsController {
             'page'               => $page,
             'per_page'           => $perPage,
             'request_data'       => $requestData,
-            'full_resp'          => $fullResp,
+            'full_resp'          => var_export($fullResp, true),
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));
@@ -124,7 +124,7 @@ class ProductsController {
 
         //process optional query parameters
         APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'full_resp'  => $fullResp,
+            'full_resp'  => var_export($fullResp, true),
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));
@@ -360,8 +360,8 @@ class ProductsController {
         APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
             'page'      => $page,
             'per_page'  => $perPage,
-            'full_resp' => $fullResp,
-            'food_only' => $foodOnly,
+            'full_resp' => var_export($fullResp, true),
+            'food_only' => var_export($foodOnly, true),
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));

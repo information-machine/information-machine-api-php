@@ -75,7 +75,7 @@ class APIHelper {
             if(is_array($value)) {
                 $queryBuilder = $queryBuilder . urldecode(http_build_query(array($key => $value)));
             } else {
-				$queryBuilder = $queryBuilder . $key . '=' . (is_bool($value) ? var_export($value, true) : $value);
+                $queryBuilder = $queryBuilder . $key . '=' . $value;
             }
         }
     }
