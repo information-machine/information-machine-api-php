@@ -1,0 +1,34 @@
+{
+    "name": "informationmachineapi",
+    "type": "library",
+    "description": "Passively streamed purchase data. Infinitely smarter apps.",
+    "keywords": ["Information Machine API","API","SDK"],
+    "homepage": "https://iamdata.co",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dejan Beric @ Information Machine LLC",
+            "email": "dejan@iamdata.co",
+            "homepage": "https://github.com/information-machine/information-machine-api-php",
+            "role": "Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/apimatic/unirest-php"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "apimatic/unirest-php": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "InformationMachineAPILib\\": "src/"
+        }
+    }
+}
