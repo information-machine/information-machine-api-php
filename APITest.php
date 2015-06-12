@@ -63,7 +63,7 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
         throw new Exception("Error: get user products");
     }
 
-    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, 1, 15, true)->result;
+    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, 1, 15, NULL, NULL, NULL, NULL, true)->result;
     if (empty($userPurchases))
     {
         throw new Exception("Error: get all user purchases");
@@ -93,7 +93,7 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
 function waitForScrapeToFinish($storesController, $userIdentifier, $storeId)
 {
     // try to see if the users credentials are valid
-    for ($i = 0; $i < 90; $i++)
+    for ($i = 0; $i < 120; $i++)
     {
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
