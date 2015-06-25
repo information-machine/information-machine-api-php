@@ -240,12 +240,12 @@ class UserManagementController {
         $response = Unirest::getResponse($request);
 
         //Error handling using HTTP status codes
-        if ($response->code == 400) {
-            throw new APIException('Bad request', 400);
+        if ($response->code == 401) {
+            throw new APIException('Unauthorized', 401);
         }
 
-        else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', 404);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK

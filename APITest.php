@@ -63,7 +63,7 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
         throw new Exception("Error: get user products");
     }
 
-    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, 1, 15, NULL, NULL, NULL, NULL, true)->result;
+    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, 1, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, NULL, NULL)->result;
     if (empty($userPurchases))
     {
         throw new Exception("Error: get all user purchases");
