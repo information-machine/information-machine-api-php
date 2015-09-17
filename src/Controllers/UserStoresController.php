@@ -156,6 +156,10 @@ class UserStoresController {
             throw new APIException('Internal Server Error', 500);
         }
 
+        else if ($response->code == 422) {
+            throw new APIException('Unprocessable entity', 422);
+        }
+
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
             throw new APIException("HTTP Response Not OK", $response->code);
         }
