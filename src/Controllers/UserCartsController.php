@@ -164,7 +164,7 @@ class UserCartsController {
     /**
      * Get detailed information on a single user cart by specifying User ID and Cart ID. Cart items are included in response.
      * @param  string     $userId      Required parameter: ID of a user
-     * @param  string     $cartId      Required parameter: ID if a cart
+     * @param  string     $cartId      Required parameter: ID of a cart
      * @return mixed response from the API call*/
     public function userCartsGetCart (
                 $userId,
@@ -226,7 +226,7 @@ class UserCartsController {
     /**
      * Add item/product to a cart, must specify product UPC and Cart ID.
      * @param  string                 $userId      Required parameter: ID of a user
-     * @param  string                 $cartId      Required parameter: ID if a cart
+     * @param  string                 $cartId      Required parameter: ID of a cart
      * @param  AddCartItemRequest     $payload     Required parameter: TODO: type description here
      * @return mixed response from the API call*/
     public function userCartsAddCartItem (
@@ -295,7 +295,7 @@ class UserCartsController {
     /**
      * Use specified Cart ID to delete cart and all associated items in specified cart.
      * @param  string     $userId      Required parameter: ID of a user
-     * @param  string     $cartId      Required parameter: ID if a cart
+     * @param  string     $cartId      Required parameter: ID of a cart
      * @return mixed response from the API call*/
     public function userCartsDeleteCart (
                 $userId,
@@ -357,8 +357,8 @@ class UserCartsController {
     /**
      * Remove item/product from a cart, must specify Cart and Cart Item ID.
      * @param  string     $userId           Required parameter: ID of a user
-     * @param  string     $cartId           Required parameter: ID if a cart
-     * @param  string     $cartItemId       Required parameter: ID if a cart item
+     * @param  string     $cartId           Required parameter: ID of a cart
+     * @param  string     $cartItemId       Required parameter: ID of a cart item
      * @return mixed response from the API call*/
     public function userCartsRemoveCartItem (
                 $userId,
@@ -420,10 +420,10 @@ class UserCartsController {
     }
         
     /**
-     * TODO: type endpoint description here
+     * Currently, only Amazon cart is supported.
      * @param  string     $userId       Required parameter: ID of a user
-     * @param  string     $cartId       Required parameter: ID if a cart
-     * @param  int        $storeId      Required parameter: ID if a store (check "Lookup" section, "v1/stores" endpoint)
+     * @param  string     $cartId       Required parameter: ID of a cart
+     * @param  int        $storeId      Required parameter: ID of a store (check "Lookup" section, "v1/stores" endpoint)
      * @return mixed response from the API call*/
     public function userCartsExecuteCart (
                 $userId,

@@ -39,6 +39,7 @@ class UserPurchasesController {
     /**
      * Get history of purchases made by a specified user from connected stores, must specify "user_id".
      * @param  string          $userId                     Required parameter: TODO: type description here
+     * @param  int|null        $storeId                    Optional parameter: Check Lookup/Stores section for ID of all stores. E.g., Amazon = 4, Walmart = 3.
      * @param  int|null        $page                       Optional parameter: default:1
      * @param  int|null        $perPage                    Optional parameter: default:10, max:50
      * @param  string|null     $purchaseDateFrom           Optional parameter: Define multiple date ranges by specifying "from" range date components, separated by comma ",". Equal number of "from" and "to" parameters is mandatory. Expected format: "yyyy-MM-dd, yyyy-MM-dd"e.g., "2015-04-18, 2015-06-25"
@@ -52,9 +53,11 @@ class UserPurchasesController {
      * @param  bool|null       $fullResp                   Optional parameter: default:false [Set true for response with purchase item details.]
      * @param  bool|null       $foodOnly                   Optional parameter: default:false [Filter out food purchase items.]
      * @param  bool|null       $upcOnly                    Optional parameter: default:false [Filter out purchase items with UPC.]
+     * @param  string|null     $upcResolvedAfter           Optional parameter: List only purchases having UPC resolved by IM after specified date. Expected format: "yyyy-MM-dd"
      * @return mixed response from the API call*/
     public function userPurchasesGetAllUserPurchases (
                 $userId,
+                $storeId = NULL,
                 $page = NULL,
                 $perPage = NULL,
                 $purchaseDateFrom = NULL,
@@ -67,7 +70,8 @@ class UserPurchasesController {
                 $purchaseTotalGreater = NULL,
                 $fullResp = NULL,
                 $foodOnly = NULL,
-                $upcOnly = NULL) 
+                $upcOnly = NULL,
+                $upcResolvedAfter = NULL) 
     {
         //the base uri for api requests
         $queryBuilder = Configuration::BASEURI;
@@ -82,6 +86,7 @@ class UserPurchasesController {
 
         //process optional query parameters
         APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
+            'store_id'               => $storeId,
             'page'                   => $page,
             'per_page'               => $perPage,
             'purchase_date_from'     => $purchaseDateFrom,
@@ -95,6 +100,7 @@ class UserPurchasesController {
             'full_resp'              => var_export($fullResp, true),
             'food_only'              => var_export($foodOnly, true),
             'upc_only'               => var_export($upcOnly, true),
+            'upc_resolved_after'     => $upcResolvedAfter,
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
         ));
@@ -167,6 +173,79 @@ class UserPurchasesController {
         $headers = array (
             'user-agent'    => 'IAMDATA V1',
             'Accept'        => 'application/json'
+        );
+
+        //prepare API request
+        $request = Unirest::get($queryUrl, $headers);
+
+        //and invoke the API call request to fetch the response
+        $response = Unirest::getResponse($request);
+
+        //Error handling using HTTP status codes
+        if ($response->code == 404) {
+            throw new APIException('Not Found', 404);
+        }
+
+        else if ($response->code == 401) {
+            throw new APIException('Unauthorized', 401);
+        }
+
+        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $response->code);
+        }
+
+        return $response->body;
+    }
+        
+    /**
+     * Get history of loyalty purchases made by a specified user from connected stores, must specify "user_id".
+     * @param  string          $userId                 Required parameter: TODO: type description here
+     * @param  int|null        $storeId                Optional parameter: Check Lookup/Stores section for ID of all stores. E.g., Amazon = 4, Walmart = 3.
+     * @param  int|null        $page                   Optional parameter: default:1
+     * @param  int|null        $perPage                Optional parameter: default:10, max:50
+     * @param  bool|null       $foodOnly               Optional parameter: default:false [Filter out food purchase items.]
+     * @param  bool|null       $upcOnly                Optional parameter: default:false [Filter out purchase items with UPC.]
+     * @param  string|null     $upcResolvedAfter       Optional parameter: List only purchases having UPC resolved by IM after specified date. Expected format: "yyyy-MM-dd"
+     * @return mixed response from the API call*/
+    public function userPurchasesGetAllUserLoyaltyPurchases (
+                $userId,
+                $storeId = NULL,
+                $page = NULL,
+                $perPage = NULL,
+                $foodOnly = NULL,
+                $upcOnly = NULL,
+                $upcResolvedAfter = NULL) 
+    {
+        //the base uri for api requests
+        $queryBuilder = Configuration::BASEURI;
+        
+        //prepare query string for API call
+        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/loyalty_purchases';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+            'user_id'            => $userId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
+            'store_id'           => $storeId,
+            'page'               => $page,
+            'per_page'           => $perPage,
+            'food_only'          => var_export($foodOnly, true),
+            'upc_only'           => var_export($upcOnly, true),
+            'upc_resolved_after' => $upcResolvedAfter,
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+        ));
+
+        //validate and preprocess url
+        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+
+        //prepare headers
+        $headers = array (
+            'user-agent'       => 'IAMDATA V1',
+            'Accept'           => 'application/json'
         );
 
         //prepare API request
