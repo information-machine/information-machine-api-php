@@ -42,7 +42,7 @@ class LookupController {
     public function lookupGetProductAlternativeTypes () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/product_alternative_types';
@@ -70,15 +70,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -90,7 +90,7 @@ class LookupController {
     public function lookupGetUOMs () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/units_of_measurement';
@@ -118,15 +118,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -138,7 +138,7 @@ class LookupController {
     public function lookupGetCategories () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/categories';
@@ -166,15 +166,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -186,7 +186,7 @@ class LookupController {
     public function lookupGetNutrients () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/nutrients';
@@ -214,15 +214,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -234,7 +234,7 @@ class LookupController {
     public function lookupGetStores () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/stores';
@@ -262,15 +262,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -282,7 +282,7 @@ class LookupController {
     public function lookupGetTags () 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/tags';
@@ -310,15 +310,15 @@ class LookupController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;

@@ -54,7 +54,7 @@ class ProductsController {
                 $fullResp = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/products';
@@ -88,15 +88,15 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -112,7 +112,7 @@ class ProductsController {
                 $fullResp = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/products/{product_id}';
@@ -146,15 +146,15 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -172,7 +172,7 @@ class ProductsController {
                 $perPage = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/products/{product_id}/purchases';
@@ -207,15 +207,15 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -229,7 +229,7 @@ class ProductsController {
                 $productIds) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/products_prices';
@@ -258,15 +258,15 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -282,7 +282,7 @@ class ProductsController {
                 $typeId = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/products_alternatives';
@@ -312,19 +312,19 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad request', 400);
+            throw new APIException('Bad request', 400, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -346,7 +346,7 @@ class ProductsController {
                 $foodOnly = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/products';
@@ -383,15 +383,112 @@ class ProductsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        }
+
+        return $response->body;
+    }
+        
+    /**
+     * Request POST model is simple list of strings. Each list item can be submitted in two variations: name only OR name+store [use semicolon ';' as name and store separator].Use "result" property in response, received after successful request submission, to list resolving results (endpoint below... GET v1/products/upc_resolve_response/{request_id}). Webhook JSON model example: { "name":"UB RDY RICE WHL BROWN", "store":"", "resolve_status":"Finished", "upcs":"123456789012,123456789012" }
+     * @param  NameResolveRequest     $payload         Required parameter: TODO: type description here
+     * @param  string|null            $webhookUrl      Optional parameter: URL we'll use to ping you as soon as product name is resolved to UPC. Please find POST body above.
+     * @return mixed response from the API call*/
+    public function productsSubmitProductNamesForUpcResolve (
+                $payload,
+                $webhookUrl = NULL) 
+    {
+        //the base uri for api requests
+        $queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $queryBuilder = $queryBuilder.'/v1/products/upc_resolve_request';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
+            'webhook_url' => $webhookUrl,
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+        ));
+
+        //validate and preprocess url
+        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+
+        //prepare headers
+        $headers = array (
+            'user-agent'    => 'IAMDATA V1',
+            'Accept'        => 'application/json',
+            'content-type'  => 'application/json; charset=utf-8'
+        );
+
+        //prepare API request
+        $request = Unirest::post($queryUrl, $headers, json_encode($payload));
+
+        //and invoke the API call request to fetch the response
+        $response = Unirest::getResponse($request);
+
+        //Error handling using HTTP status codes
+        if ($response->code == 401) {
+            throw new APIException('Unauthorized', 401, $response->body);
+        }
+
+        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        }
+
+        return $response->body;
+    }
+        
+    /**
+     * Use request ID recevied in "v1/products/upc_resolve_request/" [request initiate].Response model has four properties: "name" - product name submitted for UPC resolve"store" - store submitted (in combination with name)"resolve_status" - "Queued" or "Finished""upcs" - list of UPCs that correspond to submitted name or name+store request
+     * @param  string     $requestId      Required parameter: TODO: type description here
+     * @return mixed response from the API call*/
+    public function productsGetUPCByProductNameAnswer (
+                $requestId) 
+    {
+        //the base uri for api requests
+        $queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $queryBuilder = $queryBuilder.'/v1/products/upc_resolve_response/{request_id}';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+            'request_id' => $requestId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+        ));
+
+        //validate and preprocess url
+        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+
+        //prepare headers
+        $headers = array (
+            'user-agent'    => 'IAMDATA V1',
+            'Accept'        => 'application/json'
+        );
+
+        //prepare API request
+        $request = Unirest::get($queryUrl, $headers);
+
+        //and invoke the API call request to fetch the response
+        $response = Unirest::getResponse($request);
+
+        //Error handling using HTTP status codes
+        if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;

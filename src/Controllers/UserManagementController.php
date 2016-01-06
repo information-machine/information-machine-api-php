@@ -46,7 +46,7 @@ class UserManagementController {
                 $perPage = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users';
@@ -76,15 +76,15 @@ class UserManagementController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad request', 400);
+            throw new APIException('Bad request', 400, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -98,7 +98,7 @@ class UserManagementController {
                 $payload) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users';
@@ -127,23 +127,23 @@ class UserManagementController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad request', 400);
+            throw new APIException('Bad request', 400, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable entity', 422);
+            throw new APIException('Unprocessable entity', 422, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -157,7 +157,7 @@ class UserManagementController {
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users';
@@ -186,15 +186,15 @@ class UserManagementController {
 
         //Error handling using HTTP status codes
         if ($response->code == 404) {
-            throw new APIException('Not found', 404);
+            throw new APIException('Not found', 404, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -208,7 +208,7 @@ class UserManagementController {
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{id}';
@@ -241,15 +241,15 @@ class UserManagementController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;

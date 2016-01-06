@@ -9,7 +9,7 @@ namespace InformationMachineAPILib;
 
 class Configuration {
     //The base Uri for API calls
-    const BASEURI = 'https://api.iamdata.co';
+    public static $BASEURI = 'https://api.iamdata.co';
 
     //Id of your app
     //TODO: Replace the $clientId with an appropriate value

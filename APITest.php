@@ -40,12 +40,6 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
         throw new Exception("Error: could not connect to store");
     }
 
-    $updateUserStoreRequest = new model\UpdateUserStoreRequest();
-    $updateUserStoreRequest->username = $username;
-    $updateUserStoreRequest->password = $password;
-
-    $storesController->userStoresUpdateStoreConnection($updateUserStoreRequest, $userId, $userStore->id);
-
     if (!waitForScrapeToFinish($storesController, $userId, $userStore->id))
     {
         throw new Exception("Error: scrape is not finished");
@@ -63,11 +57,18 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
         throw new Exception("Error: get user products");
     }
 
-    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, NULL, 1, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, NULL, NULL, NULL)->result;
+    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, NULL, 1, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, NULL, NULL, NULL, NULL)->result;
     if (empty($userPurchases))
     {
         throw new Exception("Error: get all user purchases");
     }
+    
+    $purchaseHistory = $purchasesController->userPurchasesGetPurchaseHistoryUnified($userId, NULL, NULL, NULL, NULL, NULL, NULL)->result;
+    if (empty($purchaseHistory))
+    {
+        throw new Exception("Error: get purchase history");
+    }
+
 
     $userPurchase = $purchasesController->userPurchasesGetSingleUserPurchase($userId, $userPurchases[0]->id, true)->result;
     if ($userPurchase == NULL || $userPurchase->id != $userPurchases[0]->id)
@@ -97,7 +98,8 @@ function waitForScrapeToFinish($storesController, $userIdentifier, $storeId)
     {
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
-        if ($connectedStore != NULL && $connectedStore->result->scrape_status == "Done")
+        if ($connectedStore != NULL &&
+         ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "Done With Warning"))
         {
             return true;
         }
@@ -115,17 +117,15 @@ function checkStoreValidity($storesController, $userIdentifier, $storeId)
     {
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
-        if ($connectedStore != NULL)
+        if ($connectedStore != NULL &&
+        ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "Done With Warning" || $connectedStore->result->scrape_status == "Scraping"))
         {
             if ($connectedStore->result->credentials_status == "Verified")
             {
                 return true;
             }
 
-            if ($connectedStore->result->credentials_status == "Invalid")
-            {
-                return false;
-            }
+            return false;
         }
 
         sleep(3);

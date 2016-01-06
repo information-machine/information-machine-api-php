@@ -37,7 +37,7 @@ class UserStoresController {
     }
 
     /**
-     * Get all store connections for a specified user, must identify user by "user_id". Note: Within response focus on the following  properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)
+     * Get all store connections for a specified user, must identify user by "user_id". Note: Within response focus on the following  properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "Done With Warning"Sometimes the account can be locked because a security question, image captcha or sms verification code is needed in order to proceed with scraping.You can check whether the account is locked if property account_locked is set to true. To unlock the store connection visit the url the can be found in unlock_url property.For more information on this please visit the <a href="https://www.iamdata.co/docs?section=user-stores-section#userstoreunlock">docs</a> page.
      * @param  string       $userId       Required parameter: TODO: type description here
      * @param  int|null     $page         Optional parameter: TODO: type description here
      * @param  int|null     $perPage      Optional parameter: TODO: type description here
@@ -48,7 +48,7 @@ class UserStoresController {
                 $perPage = NULL) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores';
@@ -83,22 +83,22 @@ class UserStoresController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
     }
         
     /**
-     * Connect a user's store by specifying the user ID ("user_id"), store ID ("store_id") and user's credentials for specified store ("username" and "password"). You can find store IDs in Lookup/Stores section above or in this <a href="http://api.iamdata.co/docs/storeids" target="blank">LINK</a>. Note: Within response you should focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)
+     * Connect a user's store by specifying the user ID ("user_id"), store ID ("store_id") and user's credentials for specified store ("username" and "password"). You can find store IDs in Lookup/Stores section above or in this <a href="http://api.iamdata.co/docs/storeids" target="blank">LINK</a>. Note: Within response you should focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress, credentials are set)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "DoneWithWarning"
      * @param  ConnectUserStoreRequest     $payload     Required parameter: TODO: type description here
      * @param  string                      $userId      Required parameter: TODO: type description here
      * @return mixed response from the API call*/
@@ -107,7 +107,7 @@ class UserStoresController {
                 $userId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores';
@@ -141,30 +141,96 @@ class UserStoresController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad request', 400);
+            throw new APIException('Bad request', 400, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
     }
         
     /**
-     * Get single store connection by specifying user ("user_id") and store connection ID ("id" - generated upon successful store connection). Note: Within response focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)
+     * Connect a user's store by specifying the user ID ("user_id"), store ID ("store_id") and OAuth2 provider (such as GMailAPI) You can find store IDs in Lookup/Stores section above or in this <a href="http://api.iamdata.co/docs/storeids" target="blank">LINK</a>. Note: Within response you should focus on the following properties: "scrape_status", "credentials_status" and OAuth providers where you will find a url link for authorization. Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "DoneWithWarning"
+     * @param  ConnectOAuthUserStoreRequest     $payload     Required parameter: TODO: type description here
+     * @param  string                           $userId      Required parameter: TODO: type description here
+     * @return mixed response from the API call*/
+    public function userStoresConnectOAuthStore (
+                $payload,
+                $userId) 
+    {
+        //the base uri for api requests
+        $queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/oauth';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+            'user_id' => $userId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+        ));
+
+        //validate and preprocess url
+        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+
+        //prepare headers
+        $headers = array (
+            'user-agent'    => 'IAMDATA V1',
+            'Accept'        => 'application/json',
+            'content-type'  => 'application/json; charset=utf-8'
+        );
+
+        //prepare API request
+        $request = Unirest::post($queryUrl, $headers, json_encode($payload));
+
+        //and invoke the API call request to fetch the response
+        $response = Unirest::getResponse($request);
+
+        //Error handling using HTTP status codes
+        if ($response->code == 400) {
+            throw new APIException('Bad request', 400, $response->body);
+        }
+
+        else if ($response->code == 401) {
+            throw new APIException('Unauthorized', 401, $response->body);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', 404, $response->body);
+        }
+
+        else if ($response->code == 500) {
+            throw new APIException('Internal Server Error', 500, $response->body);
+        }
+
+        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        }
+
+        return $response->body;
+    }
+        
+    /**
+     * Get single store connection by specifying user ("user_id") and store connection ID ("id" - generated upon successful store connection). Note: Within response focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "Done With Warning"Sometimes the account can be locked because a security question, image captcha or sms verification code is needed in order to proceed with scraping.You can check whether the account is locked if property account_locked is set to true. To unlock the store connection visit the url the can be found in unlock_url property.For more information on this please visit the <a href="https://www.iamdata.co/docs?section=user-stores-section#userstoreunlock">docs</a> page.
      * @param  string     $userId      Required parameter: TODO: type description here
      * @param  int        $id          Required parameter: TODO: type description here
      * @return mixed response from the API call*/
@@ -173,7 +239,7 @@ class UserStoresController {
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
@@ -207,15 +273,15 @@ class UserStoresController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -233,7 +299,7 @@ class UserStoresController {
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
@@ -268,19 +334,19 @@ class UserStoresController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -296,7 +362,7 @@ class UserStoresController {
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
@@ -330,15 +396,15 @@ class UserStoresController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;

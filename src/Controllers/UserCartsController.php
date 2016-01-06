@@ -44,7 +44,7 @@ class UserCartsController {
                 $userId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts';
@@ -77,19 +77,19 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -105,7 +105,7 @@ class UserCartsController {
                 $payload) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts';
@@ -139,23 +139,23 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad Request', 400);
+            throw new APIException('Bad Request', 400, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -171,7 +171,7 @@ class UserCartsController {
                 $cartId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts/{cart_id}';
@@ -205,19 +205,19 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -235,7 +235,7 @@ class UserCartsController {
                 $payload) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts/{cart_id}';
@@ -270,23 +270,23 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 400) {
-            throw new APIException('Bad Request', 400);
+            throw new APIException('Bad Request', 400, $response->body);
         }
 
         else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500);
+            throw new APIException('Internal Server Error', 500, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -302,7 +302,7 @@ class UserCartsController {
                 $cartId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts/{cart_id}';
@@ -336,19 +336,19 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -366,7 +366,7 @@ class UserCartsController {
                 $cartItemId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts/{cart_id}/items/{cart_item_id}';
@@ -401,19 +401,19 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
@@ -431,7 +431,7 @@ class UserCartsController {
                 $storeId) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::BASEURI;
+        $queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
         $queryBuilder = $queryBuilder.'/users/{user_id}/carts/{cart_id}/stores/{store_id}';
@@ -466,19 +466,19 @@ class UserCartsController {
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401);
+            throw new APIException('Unauthorized', 401, $response->body);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404);
+            throw new APIException('Not Found', 404, $response->body);
         }
 
         else if ($response->code == 422) {
-            throw new APIException('Unprocessable Entity', 422);
+            throw new APIException('Unprocessable Entity', 422, $response->body);
         }
 
         else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code);
+            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
         }
 
         return $response->body;
