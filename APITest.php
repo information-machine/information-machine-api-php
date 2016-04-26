@@ -99,7 +99,7 @@ function waitForScrapeToFinish($storesController, $userIdentifier, $storeId)
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
         if ($connectedStore != NULL &&
-         ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "Done With Warning"))
+         ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "DoneWithWarning"))
         {
             return true;
         }
@@ -118,7 +118,7 @@ function checkStoreValidity($storesController, $userIdentifier, $storeId)
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
         if ($connectedStore != NULL &&
-        ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "Done With Warning" || $connectedStore->result->scrape_status == "Scraping"))
+        ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "DoneWithWarning" || $connectedStore->result->scrape_status == "Scraping"))
         {
             if ($connectedStore->result->credentials_status == "Verified")
             {
