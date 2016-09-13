@@ -9,79 +9,46 @@ namespace InformationMachineAPILib\Models;
 
 use JsonSerializable;
 
+/**
+ * @todo Write general description for this model
+ */
 class RegisterUserRequest implements JsonSerializable {
     /**
-     * TODO: Write general description for this property
-     * @param string|null $email public property
+     * @todo Write general description for this property
+     * @required
+     * @maps user_id
+     * @var string $userId public property
      */
-    protected $email;
+    public $userId;
 
     /**
-     * TODO: Write general description for this property
-     * @param string|null $zip public property
+     * @todo Write general description for this property
+     * @var string $email public property
      */
-    protected $zip;
+    public $email;
 
     /**
-     * TODO: Write general description for this property
-     * @param string $userId public property
+     * @todo Write general description for this property
+     * @var string $zip public property
      */
-    protected $userId;
+    public $zip;
 
     /**
      * Constructor to set initial or default values of member properties
-	 * @param   string|null       $email     Initialization value for the property $this->email  
-	 * @param   string|null       $zip       Initialization value for the property $this->zip    
-	 * @param   string            $userId    Initialization value for the property $this->userId 
+     * @param   string            $userId    Initialization value for the property $this->userId 
+     * @param   string            $email     Initialization value for the property $this->email  
+     * @param   string            $zip       Initialization value for the property $this->zip    
      */
     public function __construct()
     {
         if(3 == func_num_args())
         {
-            $this->email   = func_get_arg(0);
-            $this->zip     = func_get_arg(1);
-            $this->userId  = func_get_arg(2);
+            $this->userId  = func_get_arg(0);
+            $this->email   = func_get_arg(1);
+            $this->zip     = func_get_arg(2);
         }
     }
 
-    /**
-     * Return a property of the response if it exists.
-     * Possibilities include: code, raw_body, headers, body (if the response is json-decodable)
-     * @return mixed
-     */
-    public function __get($property)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            $value = $this->$property;
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                return utf8_encode($value);
-            }
-            else {
-                return $value;
-            }
-        }
-    }
-    
-    /**
-     * Set the properties of this object
-     * @param string $property the property name
-     * @param mixed $value the property value
-     */
-    public function __set($property, $value)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                $this->$property = utf8_encode($value);
-            }
-            else {
-                $this->$property = $value;
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Encode this object to JSON
@@ -89,9 +56,10 @@ class RegisterUserRequest implements JsonSerializable {
     public function jsonSerialize()
     {
         $json = array();
+        $json['user_id'] = $this->userId;
         $json['email']   = $this->email;
         $json['zip']     = $this->zip;
-        $json['user_id'] = $this->userId;
+
         return $json;
     }
 }

@@ -9,23 +9,28 @@ namespace InformationMachineAPILib\Models;
 
 use JsonSerializable;
 
+/**
+ * @todo Write general description for this model
+ */
 class AddCartRequest implements JsonSerializable {
     /**
-     * TODO: Write general description for this property
-     * @param string $cartName public property
+     * @todo Write general description for this property
+     * @required
+     * @maps cart_name
+     * @var string $cartName public property
      */
-    protected $cartName;
+    public $cartName;
 
     /**
-     * TODO: Write general description for this property
-     * @param string|null $description public property
+     * @todo Write general description for this property
+     * @var string $description public property
      */
-    protected $description;
+    public $description;
 
     /**
      * Constructor to set initial or default values of member properties
-	 * @param   string            $cartName      Initialization value for the property $this->cartName   
-	 * @param   string|null       $description   Initialization value for the property $this->description
+     * @param   string            $cartName      Initialization value for the property $this->cartName   
+     * @param   string            $description   Initialization value for the property $this->description
      */
     public function __construct()
     {
@@ -36,44 +41,6 @@ class AddCartRequest implements JsonSerializable {
         }
     }
 
-    /**
-     * Return a property of the response if it exists.
-     * Possibilities include: code, raw_body, headers, body (if the response is json-decodable)
-     * @return mixed
-     */
-    public function __get($property)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            $value = $this->$property;
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                return utf8_encode($value);
-            }
-            else {
-                return $value;
-            }
-        }
-    }
-    
-    /**
-     * Set the properties of this object
-     * @param string $property the property name
-     * @param mixed $value the property value
-     */
-    public function __set($property, $value)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                $this->$property = utf8_encode($value);
-            }
-            else {
-                $this->$property = $value;
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Encode this object to JSON
@@ -83,6 +50,7 @@ class AddCartRequest implements JsonSerializable {
         $json = array();
         $json['cart_name']   = $this->cartName;
         $json['description'] = $this->description;
+
         return $json;
     }
 }

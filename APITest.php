@@ -1,20 +1,21 @@
 <?php 
 
-require 'vendor/autoload.php';
+require_once "vendor/autoload.php";
 
+use InformationMachineAPILib\InformationMachineAPIClient;
 use InformationMachineAPILib\Controllers as ctrl;
 use InformationMachineAPILib\Models as model;
 
 
-function testUserPurchase($productsController, $clientId, $clientSecret, $superMarketId, $username, $password)
+function testUserPurchase($client, $superMarketId, $username, $password)
 {
     $email = "testuser@iamdata.co";
     $userId = "testuserId1234";
 
-    $usersController = new ctrl\UserManagementController($clientId, $clientSecret);
-    $storesController = new ctrl\UserStoresController($clientId, $clientSecret);
-    $purchasesController = new ctrl\UserPurchasesController($clientId, $clientSecret);
-    $userScansController = new ctrl\UserScansController($clientId, $clientSecret);
+    $usersController = $client->getUserManagement();
+    $storesController = $client->getUserStores();
+    $purchasesController = $client->getUserPurchases();
+    $userScansController = $client->getUserScans();
 
     usersControllerTest($email, $usersController, $userId);
 
@@ -45,35 +46,16 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
         throw new Exception("Error: scrape is not finished");
     }
 
-    $stores = $storesController->userStoresGetAllStores($userId)->result;
+    $stores = $storesController->userStoresGetAllUserStores($userId)->result;
     if (empty($stores) || $stores[0]->id <= 0)
     {
         throw new Exception("Error: could not get all stores");
     }
-
-    $userProducts = $productsController->productsGetUserProducts($userId, 1, 15, true, true)->result;
-    if (empty($userProducts))
-    {
-        throw new Exception("Error: get user products");
-    }
-
-    $userPurchases = $purchasesController->userPurchasesGetAllUserPurchases($userId, NULL, 1, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, NULL, NULL, NULL, NULL)->result;
-    if (empty($userPurchases))
-    {
-        throw new Exception("Error: get all user purchases");
-    }
     
-    $purchaseHistory = $purchasesController->userPurchasesGetPurchaseHistoryUnified($userId, NULL, NULL, NULL, NULL, NULL, NULL)->result;
+    $purchaseHistory = $purchasesController->userPurchasesGetPurchaseHistoryUnified($userId, NULL, false, false, false, false)->result;
     if (empty($purchaseHistory))
     {
         throw new Exception("Error: get purchase history");
-    }
-
-
-    $userPurchase = $purchasesController->userPurchasesGetSingleUserPurchase($userId, $userPurchases[0]->id, true)->result;
-    if ($userPurchase == NULL || $userPurchase->id != $userPurchases[0]->id)
-    {
-        throw new Exception("Error: get single user purchases");
     }
 
     $barcodeRequest = new model\UploadBarcodeRequest();
@@ -81,7 +63,7 @@ function testUserPurchase($productsController, $clientId, $clientSecret, $superM
     $barcodeRequest->barCodeType = "UPC-A";
 
     $barcodeResponse = $userScansController->userScansUploadBarcode($barcodeRequest, $userId)->result;
-    if ($barcodeResponse->bar_code_type != "UPC-A" || $barcodeResponse->bar_code != "021130126026")
+    if ($barcodeResponse->barCodeType != "UPC-A" || $barcodeResponse->barCode != "021130126026")
     {
         throw new Exception("Error: upload barcode");
     }
@@ -99,7 +81,7 @@ function waitForScrapeToFinish($storesController, $userIdentifier, $storeId)
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
         if ($connectedStore != NULL &&
-         ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "DoneWithWarning"))
+         ($connectedStore->result->scrapeStatus == "Done" || $connectedStore->result->scrapeStatus == "DoneWithWarning"))
         {
             return true;
         }
@@ -118,9 +100,9 @@ function checkStoreValidity($storesController, $userIdentifier, $storeId)
         $connectedStore = $storesController->userStoresGetSingleStore($userIdentifier, $storeId);
 
         if ($connectedStore != NULL &&
-        ($connectedStore->result->scrape_status == "Done" || $connectedStore->result->scrape_status == "DoneWithWarning" || $connectedStore->result->scrape_status == "Scraping"))
+        ($connectedStore->result->scrapeStatus == "Done" || $connectedStore->result->scrapeStatus == "DoneWithWarning" || $connectedStore->result->scrapeStatus == "Scraping"))
         {
-            if ($connectedStore->result->credentials_status == "Verified")
+            if ($connectedStore->result->credentialsStatus == "Verified")
             {
                 return true;
             }
@@ -143,7 +125,7 @@ function usersControllerTest($email, $usersController, $userId)
 
     $user = $usersController->userManagementCreateUser($registerUserRequest);
 
-    if ($user->result->email != $email || $user->result->user_id != $userId)
+    if ($user->result->email != $email || $user->result->userId != $userId)
     {
         throw new Exception("Error: create user");
     }
@@ -244,20 +226,8 @@ function productsControllerTest($productsController)
         throw new Exception("Error: get ean products");
     }
 
-    $productFull = $productsController->productsGetProduct("380728", true)->result;
-    if ($productFull == NULL || $productFull->name != "Peanut Butter Chocolate Party Size Candies")
-    {
-        throw new Exception("Error: get full product");
-    }            
-
-    $productsAlternatives = $productsController->productsGetProductsAlternatives("120907, 120902", "7")->result;
-    if (empty($productsAlternatives) || $productsAlternatives[0]->productAlternatives[0]->name != "Lightlife Smart Deli Veggie Slices Roast Turkey")
-    {
-        throw new Exception("Error: get full product");
-    }
-
-    $productPrices = $productsController->productsGetProductPrices("149109, 113427")->result;
-    if (empty($productPrices) || $productPrices[0]->prices[0]->store_id != 4)
+    $productFull = $productsController->productsGetProduct(2224617, true)->result;
+    if ($productFull == NULL || $productFull->name != "Peanut Butter Chocolate Chunk Smart Cookies")
     {
         throw new Exception("Error: get full product");
     }
@@ -272,12 +242,14 @@ try
     $username = $config[3];
     $password = $config[4];
 
-    $superMarketId = lookupControllerTest(new ctrl\LookupController($clientId, $clientSecret), $supermarketName);
-    $productsController = new ctrl\ProductsController($clientId, $clientSecret);
+    $client = new InformationMachineAPIClient($clientId, $clientSecret);
+    $lookupController = $client->getLookup();
+    $superMarketId = lookupControllerTest($lookupController, $supermarketName);
+    $productsController = $client->getProducts();
 
     productsControllerTest($productsController);
 
-    testUserPurchase($productsController, $clientId, $clientSecret, $superMarketId, $username, $password);
+    testUserPurchase($client, $superMarketId, $username, $password);
     echo "All tests passed\n";
 }
 catch (Exception $ex)

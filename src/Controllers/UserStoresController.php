@@ -10,404 +10,581 @@ namespace InformationMachineAPILib\Controllers;
 use InformationMachineAPILib\APIException;
 use InformationMachineAPILib\APIHelper;
 use InformationMachineAPILib\Configuration;
-use Unirest\Unirest;
-class UserStoresController {
+use InformationMachineAPILib\Models;
+use InformationMachineAPILib\Exceptions;
+use InformationMachineAPILib\Http\HttpRequest;
+use InformationMachineAPILib\Http\HttpResponse;
+use InformationMachineAPILib\Http\HttpMethod;
+use InformationMachineAPILib\Http\HttpContext;
+use Unirest\Request;
 
-    /* private fields for configuration */
+/**
+ * @todo Add a general description for this controller.
+ */
+class UserStoresController extends BaseController {
 
     /**
-     * Id of your app 
-     * @var string
+     * @var UserStoresController The reference to *Singleton* instance of this class
      */
-    private $clientId;
-
+    private static $instance;
+    
     /**
-     * Secret key which authorizes you to use this API 
-     * @var string
+     * Returns the *Singleton* instance of this class.
+     * @return UserStoresController The *Singleton* instance.
      */
-    private $clientSecret;
+    public static function getInstance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static();
+        }
+        
+        return static::$instance;
+    }
 
     /**
-     * Constructor with authentication and configuration parameters
+     * Delete user store connection
+     * @param  string      $userId      Required parameter: Example: 
+     * @param  integer     $id          Required parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
      */
-    function __construct($clientId, $clientSecret)
-    {
-        $this->clientId = $clientId ? $clientId : Configuration::$clientId;
-        $this->clientSecret = $clientSecret ? $clientSecret : Configuration::$clientSecret;
-    }
-
-    /**
-     * Get all store connections for a specified user, must identify user by "user_id". Note: Within response focus on the following  properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "Done With Warning"Sometimes the account can be locked because a security question, image captcha or sms verification code is needed in order to proceed with scraping.You can check whether the account is locked if property account_locked is set to true. To unlock the store connection visit the url the can be found in unlock_url property.For more information on this please visit the <a href="https://www.iamdata.co/docs?section=user-stores-section#userstoreunlock">docs</a> page.
-     * @param  string       $userId       Required parameter: TODO: type description here
-     * @param  int|null     $page         Optional parameter: TODO: type description here
-     * @param  int|null     $perPage      Optional parameter: TODO: type description here
-     * @return mixed response from the API call*/
-    public function userStoresGetAllStores (
-                $userId,
-                $page = NULL,
-                $perPage = NULL) 
-    {
-        //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
-        
-        //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores';
-
-        //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
-            'user_id'  => $userId,
-            ));
-
-        //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'page'     => $page,
-            'per_page' => $perPage,
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
-        ));
-
-        //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
-
-        //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
-            'Accept'        => 'application/json'
-        );
-
-        //prepare API request
-        $request = Unirest::get($queryUrl, $headers);
-
-        //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
-
-        //Error handling using HTTP status codes
-        if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
-        }
-
-        else if ($response->code == 404) {
-            throw new APIException('Not Found', 404, $response->body);
-        }
-
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
-        }
-
-        return $response->body;
-    }
-        
-    /**
-     * Connect a user's store by specifying the user ID ("user_id"), store ID ("store_id") and user's credentials for specified store ("username" and "password"). You can find store IDs in Lookup/Stores section above or in this <a href="http://api.iamdata.co/docs/storeids" target="blank">LINK</a>. Note: Within response you should focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress, credentials are set)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "DoneWithWarning"
-     * @param  ConnectUserStoreRequest     $payload     Required parameter: TODO: type description here
-     * @param  string                      $userId      Required parameter: TODO: type description here
-     * @return mixed response from the API call*/
-    public function userStoresConnectStore (
-                $payload,
-                $userId) 
-    {
-        //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
-        
-        //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores';
-
-        //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
-            'user_id' => $userId,
-            ));
-
-        //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
-        ));
-
-        //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
-
-        //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
-            'Accept'        => 'application/json',
-            'content-type'  => 'application/json; charset=utf-8'
-        );
-
-        //prepare API request
-        $request = Unirest::post($queryUrl, $headers, json_encode($payload));
-
-        //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
-
-        //Error handling using HTTP status codes
-        if ($response->code == 400) {
-            throw new APIException('Bad request', 400, $response->body);
-        }
-
-        else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
-        }
-
-        else if ($response->code == 404) {
-            throw new APIException('Not Found', 404, $response->body);
-        }
-
-        else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500, $response->body);
-        }
-
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
-        }
-
-        return $response->body;
-    }
-        
-    /**
-     * Connect a user's store by specifying the user ID ("user_id"), store ID ("store_id") and OAuth2 provider (such as GMailAPI) You can find store IDs in Lookup/Stores section above or in this <a href="http://api.iamdata.co/docs/storeids" target="blank">LINK</a>. Note: Within response you should focus on the following properties: "scrape_status", "credentials_status" and OAuth providers where you will find a url link for authorization. Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "DoneWithWarning"
-     * @param  ConnectOAuthUserStoreRequest     $payload     Required parameter: TODO: type description here
-     * @param  string                           $userId      Required parameter: TODO: type description here
-     * @return mixed response from the API call*/
-    public function userStoresConnectOAuthStore (
-                $payload,
-                $userId) 
-    {
-        //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
-        
-        //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/oauth';
-
-        //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
-            'user_id' => $userId,
-            ));
-
-        //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
-        ));
-
-        //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
-
-        //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
-            'Accept'        => 'application/json',
-            'content-type'  => 'application/json; charset=utf-8'
-        );
-
-        //prepare API request
-        $request = Unirest::post($queryUrl, $headers, json_encode($payload));
-
-        //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
-
-        //Error handling using HTTP status codes
-        if ($response->code == 400) {
-            throw new APIException('Bad request', 400, $response->body);
-        }
-
-        else if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
-        }
-
-        else if ($response->code == 404) {
-            throw new APIException('Not Found', 404, $response->body);
-        }
-
-        else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500, $response->body);
-        }
-
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
-        }
-
-        return $response->body;
-    }
-        
-    /**
-     * Get single store connection by specifying user ("user_id") and store connection ID ("id" - generated upon successful store connection). Note: Within response focus on the following properties: "scrape_status" and "credentials_status". Possible values for "scrape_status": "Not defined""Pending" - (scraping request is in queue and waiting to be processed)"Scraping" - (scraping is in progress)"Done" - (scraping is finished)"Done With Warning" - (not all purchases were scraped)Possible values for "credentials_status":"Not defined""Verified" - (scraping bots are able to log in to store site)"Invalid" - (supplied user name or password are not valid)"Unknown" - (user name or password are not know)"Checking" - (credentials verification is in progress)To get the value of credentials_status first check if scrape_status is one of the following: "Scraping", "Done", "Done With Warning"Sometimes the account can be locked because a security question, image captcha or sms verification code is needed in order to proceed with scraping.You can check whether the account is locked if property account_locked is set to true. To unlock the store connection visit the url the can be found in unlock_url property.For more information on this please visit the <a href="https://www.iamdata.co/docs?section=user-stores-section#userstoreunlock">docs</a> page.
-     * @param  string     $userId      Required parameter: TODO: type description here
-     * @param  int        $id          Required parameter: TODO: type description here
-     * @return mixed response from the API call*/
-    public function userStoresGetSingleStore (
+    public function userStoresDeleteSingleStore (
                 $userId,
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
+        $_queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores/{id}';
 
         //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
             'user_id' => $userId,
             'id'      => $id,
             ));
 
         //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
         ));
 
         //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
 
         //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
+        $_headers = array (
+            'user-agent'    => '',
             'Accept'        => 'application/json'
         );
 
-        //prepare API request
-        $request = Unirest::get($queryUrl, $headers);
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::DELETE, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
 
         //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
+        $response = Request::delete($_queryUrl, $_headers);
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
+            throw new APIException('Unauthorized', $_httpContext);
         }
 
-        else if ($response->code == 404) {
-            throw new APIException('Not Found', 404, $response->body);
+        else if ($response->code == 500) {
+            throw new APIException('Internal Server Error', $_httpContext);
         }
 
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
         }
 
-        return $response->body;
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\DeleteSingleStoreWrapper());
     }
         
     /**
-     * Update username and/or password of existing store connection, for a specified user ID ("user_id") and user store ID ("user_store_id"  - generated on store connect).
-     * @param  UpdateUserStoreRequest     $payload     Required parameter: TODO: type description here
-     * @param  string                     $userId      Required parameter: TODO: type description here
-     * @param  int                        $id          Required parameter: TODO: type description here
-     * @return mixed response from the API call*/
+     * Update a user's store connection credentials
+     * @param  Models\UpdateUserStoreRequest $payload     Required parameter: Example: 
+     * @param  string                     $userId      Required parameter: Example: 
+     * @param  integer                    $id          Required parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
     public function userStoresUpdateStoreConnection (
                 $payload,
                 $userId,
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
+        $_queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores/{id}';
 
         //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
             'user_id' => $userId,
             'id'      => $id,
             ));
 
         //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
         ));
 
         //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
 
         //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
+        $_headers = array (
+            'user-agent'    => '',
             'Accept'        => 'application/json',
             'content-type'  => 'application/json; charset=utf-8'
         );
 
-        //prepare API request
-        $request = Unirest::put($queryUrl, $headers, json_encode($payload));
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::PUT, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
 
         //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
+        $response = Request::put($_queryUrl, $_headers, Request\Body::Json($payload));
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
+            throw new APIException('Unauthorized', $_httpContext);
         }
 
         else if ($response->code == 404) {
-            throw new APIException('Not Found', 404, $response->body);
+            throw new APIException('Not Found', $_httpContext);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500, $response->body);
+            throw new APIException('Internal Server Error', $_httpContext);
         }
 
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
         }
 
-        return $response->body;
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\UpdateStoreConnectionWrapper());
     }
         
     /**
-     * Delete store connection for a specified user ("user_id") and specified store ("user_store_id"  - generated on store connect).
-     * @param  string     $userId      Required parameter: TODO: type description here
-     * @param  int        $id          Required parameter: TODO: type description here
-     * @return mixed response from the API call*/
-    public function userStoresDeleteSingleStore (
+     * Get user store connection information
+     * @param  string      $userId      Required parameter: Example: 
+     * @param  integer     $id          Required parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
+    public function userStoresGetSingleStore (
                 $userId,
                 $id) 
     {
         //the base uri for api requests
-        $queryBuilder = Configuration::$BASEURI;
+        $_queryBuilder = Configuration::$BASEURI;
         
         //prepare query string for API call
-        $queryBuilder = $queryBuilder.'/v1/users/{user_id}/stores/{id}';
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores/{id}';
 
         //process optional query parameters
-        APIHelper::appendUrlWithTemplateParameters($queryBuilder, array (
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
             'user_id' => $userId,
             'id'      => $id,
             ));
 
         //process optional query parameters
-        APIHelper::appendUrlWithQueryParameters($queryBuilder, array (
-            'client_id' => $this->clientId,
-            'client_secret' => $this->clientSecret,
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
         ));
 
         //validate and preprocess url
-        $queryUrl = APIHelper::cleanUrl($queryBuilder);
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
 
         //prepare headers
-        $headers = array (
-            'user-agent'    => 'IAMDATA V1',
+        $_headers = array (
+            'user-agent'    => '',
             'Accept'        => 'application/json'
         );
 
-        //prepare API request
-        $request = Unirest::delete($queryUrl, $headers);
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
 
         //and invoke the API call request to fetch the response
-        $response = Unirest::getResponse($request);
+        $response = Request::get($_queryUrl, $_headers);
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
 
         //Error handling using HTTP status codes
         if ($response->code == 401) {
-            throw new APIException('Unauthorized', 401, $response->body);
+            throw new APIException('Unauthorized', $_httpContext);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', $_httpContext);
+        }
+
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
+        }
+
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\GetSingleStoresWrapper());
+    }
+        
+    /**
+     * Connect store for specified user
+     * @param  Models\ConnectOAuthUserStoreRequest $payload     Required parameter: Example: 
+     * @param  string                           $userId      Required parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
+    public function userStoresConnectOAuthStore (
+                $payload,
+                $userId) 
+    {
+        //the base uri for api requests
+        $_queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores/oauth';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
+            'user_id' => $userId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
+        ));
+
+        //validate and preprocess url
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
+
+        //prepare headers
+        $_headers = array (
+            'user-agent'    => '',
+            'Accept'        => 'application/json',
+            'content-type'  => 'application/json; charset=utf-8'
+        );
+
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::POST, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
+
+        //and invoke the API call request to fetch the response
+        $response = Request::post($_queryUrl, $_headers, Request\Body::Json($payload));
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
+
+        //Error handling using HTTP status codes
+        if ($response->code == 400) {
+            throw new APIException('Bad request', $_httpContext);
+        }
+
+        else if ($response->code == 401) {
+            throw new APIException('Unauthorized', $_httpContext);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', $_httpContext);
         }
 
         else if ($response->code == 500) {
-            throw new APIException('Internal Server Error', 500, $response->body);
+            throw new APIException('Internal Server Error', $_httpContext);
         }
 
-        else if (($response->code < 200) || ($response->code > 206)) { //[200,206] = HTTP OK
-            throw new APIException("HTTP Response Not OK", $response->code, $response->body);
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
         }
 
-        return $response->body;
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\ConnectStoreWrapper());
     }
         
+    /**
+     * Connect store for specified user
+     * @param  Models\ConnectUserStoreRequest $payload     Required parameter: Example: 
+     * @param  string                      $userId      Required parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
+    public function userStoresConnectStore (
+                $payload,
+                $userId) 
+    {
+        //the base uri for api requests
+        $_queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
+            'user_id' => $userId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
+        ));
+
+        //validate and preprocess url
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
+
+        //prepare headers
+        $_headers = array (
+            'user-agent'    => '',
+            'Accept'        => 'application/json',
+            'content-type'  => 'application/json; charset=utf-8'
+        );
+
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::POST, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
+
+        //and invoke the API call request to fetch the response
+        $response = Request::post($_queryUrl, $_headers, Request\Body::Json($payload));
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
+
+        //Error handling using HTTP status codes
+        if ($response->code == 400) {
+            throw new APIException('Bad request', $_httpContext);
+        }
+
+        else if ($response->code == 401) {
+            throw new APIException('Unauthorized', $_httpContext);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', $_httpContext);
+        }
+
+        else if ($response->code == 500) {
+            throw new APIException('Internal Server Error', $_httpContext);
+        }
+
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
+        }
+
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\ConnectStoreWrapper());
+    }
+        
+    /**
+     * Get all store connections associated with a user
+     * @param  string      $userId       Required parameter: Example: 
+     * @param  integer     $page         Optional parameter: Example: 
+     * @param  integer     $perPage      Optional parameter: Example: 
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
+    public function userStoresGetAllUserStores (
+                $userId,
+                $page = NULL,
+                $perPage = NULL) 
+    {
+        //the base uri for api requests
+        $_queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $_queryBuilder = $_queryBuilder.'/v1/users/{user_id}/stores';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithTemplateParameters($_queryBuilder, array (
+            'user_id'  => $userId,
+            ));
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'page'     => $page,
+            'per_page' => $perPage,
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
+        ));
+
+        //validate and preprocess url
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
+
+        //prepare headers
+        $_headers = array (
+            'user-agent'    => '',
+            'Accept'        => 'application/json'
+        );
+
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
+
+        //and invoke the API call request to fetch the response
+        $response = Request::get($_queryUrl, $_headers);
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
+
+        //Error handling using HTTP status codes
+        if ($response->code == 401) {
+            throw new APIException('Unauthorized', $_httpContext);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', $_httpContext);
+        }
+
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
+        }
+
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\GetAllStoresWrapper());
+    }
+        
+    /**
+     * Get all store connections associated with a API owner account
+     * @param  integer     $page                           Optional parameter: default:1
+     * @param  integer     $perPage                        Optional parameter: default:1000
+     * @param  bool        $accountLocked                  Optional parameter: Filter out locked store connections.
+     * @param  string      $accountLockedDateAfter         Optional parameter: Filter out store connections locked after specified date. Expected format: yyyy-MM-dd HH:mm:ss<br />[e.g., 2016-06-14 16:29:23]
+     * @param  bool        $connectionLost                 Optional parameter: Filter out store connections that lost credentials status "Verified".
+     * @param  string      $connectionLostDateAfter        Optional parameter: Filter out store connections that lost credentials status "Verified" after specified date. Expected format: yyyy-MM-dd HH:mm:ss<br />[e.g., 2016-06-14 16:29:23]
+     * @return mixed response from the API call
+     * @throws APIException Thrown if API call fails
+     */
+    public function userStoresGetAllAPIAccountStores (
+                $page = NULL,
+                $perPage = NULL,
+                $accountLocked = NULL,
+                $accountLockedDateAfter = NULL,
+                $connectionLost = NULL,
+                $connectionLostDateAfter = NULL) 
+    {
+        //the base uri for api requests
+        $_queryBuilder = Configuration::$BASEURI;
+        
+        //prepare query string for API call
+        $_queryBuilder = $_queryBuilder.'/v1/store_connections';
+
+        //process optional query parameters
+        APIHelper::appendUrlWithQueryParameters($_queryBuilder, array (
+            'page'                       => $page,
+            'per_page'                   => $perPage,
+            'account_locked'             => var_export($accountLocked, true),
+            'account_locked_date_after'  => $accountLockedDateAfter,
+            'connection_lost'            => var_export($connectionLost, true),
+            'connection_lost_date_after' => $connectionLostDateAfter,
+            'client_id' => Configuration::$clientId,
+            'client_secret' => Configuration::$clientSecret,
+        ));
+
+        //validate and preprocess url
+        $_queryUrl = APIHelper::cleanUrl($_queryBuilder);
+
+        //prepare headers
+        $_headers = array (
+            'user-agent'               => '',
+            'Accept'                   => 'application/json'
+        );
+
+        //call on-before Http callback
+        $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
+        if($this->getHttpCallBack() != null) {
+            $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);            
+        }
+
+        //and invoke the API call request to fetch the response
+        $response = Request::get($_queryUrl, $_headers);
+
+        //call on-after Http callback
+        if($this->getHttpCallBack() != null) {
+            $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
+            $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
+            
+            $this->getHttpCallBack()->callOnAfterRequest($_httpContext);            
+        }
+
+        //Error handling using HTTP status codes
+        if ($response->code == 401) {
+            throw new APIException('Unauthorized', $_httpContext);
+        }
+
+        else if ($response->code == 404) {
+            throw new APIException('Not Found', $_httpContext);
+        }
+
+        else if (($response->code < 200) || ($response->code > 208)) { //[200,208] = HTTP OK
+            throw new APIException("HTTP Response Not OK", $_httpContext);
+        }
+
+        $mapper = $this->getJsonMapper();
+
+        return $mapper->map($response->body, new Models\GetAllStoresWrapper());
+    }
+        
+
 }

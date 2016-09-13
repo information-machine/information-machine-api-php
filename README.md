@@ -46,13 +46,13 @@ For using this SDK do the following:
        context menu command "Composer Install".
     3. Include these lines in your php file:
 ```
-	require 'vendor/autoload.php';
-	use InformationMachineAPILib\Controllers as ctrl;
-	use InformationMachineAPILib\Models as model;
+	require_once "vendor/autoload.php";
+	use InformationMachineAPILib\InformationMachineAPIClient;
 ```
     4. You can now instantiate controllers and call the respective methods as given below:
 ```
-	$productsController = new ctrl\ProductsController($clientId, $clientSecret);
+	$client = new InformationMachineAPIClient($clientId, $clientSecret);
+    $productsController = $client->getProducts();
     $kaleProducts = $productsController->productsSearchProducts("Kale", NULL, 1, 25, NULL, true)->result;
 ```
 
@@ -60,4 +60,4 @@ The quickest way to see how you should use the API and library itself is by open
 
 All methods return wrapper object which contains meta information (number of available requests, maximum number of requests per minute) and result object. Additionally if the result is of an array type, meta object will contain paging information (current page, items per page, total number of items, url to next page if there is a next page).
 
-For more information on which methods are available please go to [Information Machine](http://iamdata.co/swagger/ui/index)
+For more information on which methods are available please go to [Information Machine](https://www.iamdata.co/swagger/ui/index)

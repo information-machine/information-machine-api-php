@@ -9,30 +9,37 @@ namespace InformationMachineAPILib\Models;
 
 use JsonSerializable;
 
+/**
+ * @todo Write general description for this model
+ */
 class ConnectUserStoreRequest implements JsonSerializable {
     /**
-     * TODO: Write general description for this property
-     * @param int $storeId public property
+     * @todo Write general description for this property
+     * @required
+     * @maps store_id
+     * @var integer $storeId public property
      */
-    protected $storeId;
+    public $storeId;
 
     /**
-     * TODO: Write general description for this property
-     * @param string $username public property
+     * @todo Write general description for this property
+     * @required
+     * @var string $username public property
      */
-    protected $username;
+    public $username;
 
     /**
-     * TODO: Write general description for this property
-     * @param string $password public property
+     * @todo Write general description for this property
+     * @required
+     * @var string $password public property
      */
-    protected $password;
+    public $password;
 
     /**
      * Constructor to set initial or default values of member properties
-	 * @param   int               $storeId    Initialization value for the property $this->storeId 
-	 * @param   string            $username   Initialization value for the property $this->username
-	 * @param   string            $password   Initialization value for the property $this->password
+     * @param   integer           $storeId    Initialization value for the property $this->storeId 
+     * @param   string            $username   Initialization value for the property $this->username
+     * @param   string            $password   Initialization value for the property $this->password
      */
     public function __construct()
     {
@@ -44,44 +51,6 @@ class ConnectUserStoreRequest implements JsonSerializable {
         }
     }
 
-    /**
-     * Return a property of the response if it exists.
-     * Possibilities include: code, raw_body, headers, body (if the response is json-decodable)
-     * @return mixed
-     */
-    public function __get($property)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            $value = $this->$property;
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                return utf8_encode($value);
-            }
-            else {
-                return $value;
-            }
-        }
-    }
-    
-    /**
-     * Set the properties of this object
-     * @param string $property the property name
-     * @param mixed $value the property value
-     */
-    public function __set($property, $value)
-    {
-        if (property_exists($this, $property)) {
-            //UTF-8 is recommended for correct JSON serialization
-            if (is_string($value) && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
-                $this->$property = utf8_encode($value);
-            }
-            else {
-                $this->$property = $value;
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Encode this object to JSON
@@ -92,6 +61,7 @@ class ConnectUserStoreRequest implements JsonSerializable {
         $json['store_id'] = $this->storeId;
         $json['username'] = $this->username;
         $json['password'] = $this->password;
+
         return $json;
     }
 }
