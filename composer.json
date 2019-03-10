@@ -1,5 +1,5 @@
 {
-    "name": "informationmachineapi",
+    "name": "information-machine/information-machine-api-php",
     "type": "library",
     "description": "Passively streamed purchase data. Infinitely smarter apps.",
     "keywords": ["Information Machine API","API","SDK"],
